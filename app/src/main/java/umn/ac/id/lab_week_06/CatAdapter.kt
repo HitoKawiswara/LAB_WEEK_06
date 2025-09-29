@@ -2,6 +2,7 @@ package umn.ac.id.lab_week_06
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import umn.ac.id.lab_week_06.model.CatModel
 
@@ -11,7 +12,15 @@ class CatAdapter(
     private val onClickListener: OnClickListener
 ) : RecyclerView.Adapter<CatViewHolder>() {
 
+    val swipeToDeleteCallback = SwipeToDeleteCallback()
     private val cats = mutableListOf<CatModel>()
+
+    fun removeItem(position: Int) {
+        if (position in cats.indices) {
+            cats.removeAt(position)
+            notifyItemRemoved(position)
+        }
+    }
 
     fun setData(newCats: List<CatModel>) {
         cats.clear()
@@ -21,7 +30,7 @@ class CatAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CatViewHolder {
         val view = layoutInflater.inflate(R.layout.item_list, parent, false)
-        return CatViewHolder(view, imageLoader, onClickListener)  // ✅ no cast needed
+        return CatViewHolder(view, imageLoader, onClickListener)
     }
 
     override fun getItemCount() = cats.size
@@ -32,5 +41,22 @@ class CatAdapter(
 
     interface OnClickListener {
         fun onItemClick(cat: CatModel)
+    }
+
+    // ✅ Swipe-to-delete callback (moved outside interface)
+    inner class SwipeToDeleteCallback : ItemTouchHelper.SimpleCallback(
+        0,
+        ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+    ) {
+        override fun onMove(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            target: RecyclerView.ViewHolder
+        ): Boolean = false
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            val position = viewHolder.adapterPosition
+            removeItem(position)
+        }
     }
 }
