@@ -1,6 +1,7 @@
 package umn.ac.id.lab_week_06
 
 import android.os.Bundle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -16,7 +17,11 @@ class MainActivity : AppCompatActivity() {
 
     private val catAdapter by lazy {
         // Glide is used here to load the images
-        CatAdapter(layoutInflater, GlideImageLoader(this))
+        // Passing the onClickListener function to the Adapter
+        CatAdapter(layoutInflater, GlideImageLoader(this), object : CatAdapter.OnClickListener {
+            // When this is triggered, the pop-up dialog will be shown
+            override fun onItemClick(cat: CatModel) = showSelectionDialog(cat)
+        })
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,8 +32,6 @@ class MainActivity : AppCompatActivity() {
         recyclerView.adapter = catAdapter
 
         // Setup the layout manager for the recycler view
-        // A layout manager is used to set the structure of the item views
-        // For this tutorial, we're using the vertical linear structure
         recyclerView.layoutManager = LinearLayoutManager(
             this,
             LinearLayoutManager.VERTICAL,
@@ -61,5 +64,14 @@ class MainActivity : AppCompatActivity() {
                 )
             )
         )
+    }
+
+    // This will create a pop-up dialog when one of the items is clicked
+    private fun showSelectionDialog(cat: CatModel) {
+        AlertDialog.Builder(this)
+            .setTitle("Cat Selected")
+            .setMessage("You have selected cat ${cat.name}")
+            .setPositiveButton("OK") { _, _ -> }
+            .show()
     }
 }
